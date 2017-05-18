@@ -1,9 +1,6 @@
 const LIFE = '⬛️';
 const DEATH = '⬜️';
 
-var paused = false;
-var stepped = false;
-
 // this function is used when reading from the html DOM
 
 function readGrid() {
@@ -114,6 +111,10 @@ function generateRandom(width, height) {
 }
 
 $(document).ready(function() {
+    var refresh_time = 100;
+    var paused = false;
+    var stepped = false;
+
     // when resizing window change the
     $(window).resize(function(){location.reload();});
 
@@ -131,62 +132,78 @@ $(document).ready(function() {
         paused = false;
 
         $("#player").text("play");
+    });
+
+    $("#slower").click(function(){
+        if (refresh_time < 10000) {
+            refresh_time += 10;
+        }
+    });
+
+    $("#faster").click(function(){
+        if (refresh_time > 10) {
+            refresh_time -= 10;
+        }
     })
 
     var grid = generateRandom($(window).width()/30,$(window).height()/35);
     generateGrid(grid);
 
-    window.setInterval(function() {
-        if (!paused) {
-            var new_grid = readGrid();
+    (function loop() {
+        window.setTimeout(function() {
+            if (!paused) {
+                var new_grid = readGrid();
 
-            for (var i = 0; i < grid.length; i++) {
-                for (var j = 0; j < grid[i].length; j++) {
+                for (var i = 0; i < grid.length; i++) {
+                    for (var j = 0; j < grid[i].length; j++) {
 
-                    var life_forms = 0;
+                        var life_forms = 0;
 
-                    var neighbors = []
+                        var neighbors = []
 
-                    // find the neighbor cells to the current one.
-                    // the grid closes in itself due to the modulus operator
-                    neighbors.push(grid[mod(i - 1, grid.length)][mod(j - 1, grid[i].length)]);
-                    neighbors.push(grid[mod(i - 1, grid.length)][j]);
-                    neighbors.push(grid[mod(i - 1, grid.length)][mod(j + 1, grid[i].length)]);
-                    neighbors.push(grid[i][mod(j - 1, grid[i].length)]);
-                    neighbors.push(grid[i][mod(j + 1, grid[i].length)]);
-                    neighbors.push(grid[mod(i + 1, grid.length)][mod(j - 1, grid[i].length)]);
-                    neighbors.push(grid[mod(i + 1, grid.length)][j]);
-                    neighbors.push(grid[mod(i + 1, grid.length)][mod(j + 1, grid[i].length)]);
+                        // find the neighbor cells to the current one.
+                        // the grid closes in itself due to the modulus operator
+                        neighbors.push(grid[mod(i - 1, grid.length)][mod(j - 1, grid[i].length)]);
+                        neighbors.push(grid[mod(i - 1, grid.length)][j]);
+                        neighbors.push(grid[mod(i - 1, grid.length)][mod(j + 1, grid[i].length)]);
+                        neighbors.push(grid[i][mod(j - 1, grid[i].length)]);
+                        neighbors.push(grid[i][mod(j + 1, grid[i].length)]);
+                        neighbors.push(grid[mod(i + 1, grid.length)][mod(j - 1, grid[i].length)]);
+                        neighbors.push(grid[mod(i + 1, grid.length)][j]);
+                        neighbors.push(grid[mod(i + 1, grid.length)][mod(j + 1, grid[i].length)]);
 
-                    for (var k = 0; k < neighbors.length; k++)
-                        if (neighbors[k] == LIFE)
-                            life_forms += 1;
+                        for (var k = 0; k < neighbors.length; k++)
+                            if (neighbors[k] == LIFE)
+                                life_forms += 1;
 
-                    if (grid[i][j] == DEATH) {
-                        // check if I can spawn a new cell
-                        if (life_forms == 3) {
-                            new_grid[i][j] = LIFE;
-                        }
-                    } else { // else current cell lives
-                        // check if cell must die of over-population or under-population
-                        if (life_forms < 2 || life_forms > 3) {
-                            new_grid[i][j] = DEATH;
+                        if (grid[i][j] == DEATH) {
+                            // check if I can spawn a new cell
+                            if (life_forms == 3) {
+                                new_grid[i][j] = LIFE;
+                            }
+                        } else { // else current cell lives
+                            // check if cell must die of over-population or under-population
+                            if (life_forms < 2 || life_forms > 3) {
+                                new_grid[i][j] = DEATH;
+                            }
                         }
                     }
                 }
+
+                // write new grid to HTML DOM
+                writeGrid(new_grid);
+
+                // copy grid with new generations to the one
+                // previously created
+                grid = copyGrid(new_grid);
+
+                if (stepped) {
+                    paused = true;
+                    stepped = false;
+                }
             }
-
-            // write new grid to HTML DOM
-            writeGrid(new_grid);
-
-            // copy grid with new generations to the one
-            // previously created
-            grid = copyGrid(new_grid);
-
-            if (stepped) {
-                paused = true;
-                stepped = false;
-            }
-        }
-    }, 100);
+            console.log(refresh_time);
+            loop();
+        }, refresh_time);
+    }());
 });
