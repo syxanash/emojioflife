@@ -4,21 +4,21 @@ const DEATH = '⬜️';
 // this function is used when reading from the html DOM
 
 function readGrid() {
-    var mybody      = document.getElementById("main");
-    var mytable     = mybody.getElementsByTagName("table")[0];
-    var mytablebody = mytable.getElementsByTagName("tbody")[0];
+    var mybody      = document.getElementById('main');
+    var mytable     = mybody.getElementsByTagName('table')[0];
+    var mytablebody = mytable.getElementsByTagName('tbody')[0];
 
     var temp_grid = [];
 
-    for (var i = 0; i < mytablebody.getElementsByTagName("tr").length; i++) {
-        var myrow = mytablebody.getElementsByTagName("tr")[i];
+    for (var i = 0; i < mytablebody.getElementsByTagName('tr').length; i++) {
+        var myrow = mytablebody.getElementsByTagName('tr')[i];
         temp_grid[i] = [];
 
-        for (var j = 0; j < myrow.getElementsByTagName("td").length; j++) {
-            var mycel = myrow.getElementsByTagName("td")[j];
+        for (var j = 0; j < myrow.getElementsByTagName('td').length; j++) {
+            var mycel = myrow.getElementsByTagName('td')[j];
 
             // if mouse goes over a cell creates life, just like god!
-            document.getElementById("cell_" + i + "_" + j).onclick = function() {
+            document.getElementById('cell_' + i + '_' + j).onclick = function() {
                 this.childNodes[0].data = LIFE;
             };
 
@@ -34,7 +34,7 @@ function readGrid() {
 function writeGrid(grid) {
     for (var i = 0; i < grid.length; i++) {
         for (var j = 0; j < grid[i].length; j++) {
-            document.getElementById("cell_" + i + "_" + j).innerHTML = grid[i][j];
+            document.getElementById('cell_' + i + '_' + j).innerHTML = grid[i][j];
         }
     }
 }
@@ -43,23 +43,23 @@ function writeGrid(grid) {
 
 function generateGrid(grid) {
     // get the reference for the body
-    var body = document.getElementById("main");
+    var body = document.getElementById('main');
 
     // creates a <table> element and a <tbody> element
-    var tbl = document.createElement("table");
-    var tblBody = document.createElement("tbody");
+    var tbl = document.createElement('table');
+    var tblBody = document.createElement('tbody');
 
     // creating all cells
     for (var i = 0; i < grid.length; i++) {
         // creates a table row
-        var row = document.createElement("tr");
+        var row = document.createElement('tr');
 
         for (var j = 0; j < grid[i].length; j++) {
             // Create a <td> element and a text node, make the text
             // node the contents of the <td>, and put the <td> at
             // the end of the table row
-            var cell = document.createElement("td");
-            cell.id = "cell_" + i + "_" + j;
+            var cell = document.createElement('td');
+            cell.id = 'cell_' + i + '_' + j;
 
             var cellText = document.createTextNode(grid[i][j]);
 
@@ -76,7 +76,7 @@ function generateGrid(grid) {
     // appends <table> into div main
     body.appendChild(tbl);
     // sets the border attribute of tbl to 2;
-    tbl.setAttribute("border", "1");
+    tbl.setAttribute('border', '1');
 }
 
 function mod(n, m) {
@@ -118,32 +118,28 @@ $(document).ready(function() {
     // when resizing window change the
     $(window).resize(function(){location.reload();});
 
-    $("#player").click(function(){
+    $('#player').click(function(){
         paused = !paused;
 
         if (paused)
-            $(this).text("play");
+            $(this).text('play');
         else
-            $(this).text("pause");
+            $(this).text('pause');
     });
 
-    $("#step").click(function(){
+    $('#step').click(function(){
         stepped = true;
         paused = false;
 
-        $("#player").text("play");
+        $('#player').text('play');
     });
 
-    $("#slower").click(function(){
-        if (refresh_time < 10000) {
-            refresh_time += 10;
-        }
+    $('#refresh').click(function(){
+        location.reload();
     });
 
-    $("#faster").click(function(){
-        if (refresh_time > 10) {
-            refresh_time -= 10;
-        }
+    $('#speed').on('change mousemove', function(){
+        refresh_time = $(this).val();
     })
 
     var grid = generateRandom($(window).width()/30,$(window).height()/35);
@@ -202,7 +198,7 @@ $(document).ready(function() {
                     stepped = false;
                 }
             }
-            console.log(refresh_time);
+
             loop();
         }, refresh_time);
     }());
